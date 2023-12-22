@@ -49,13 +49,19 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
-    app.post('/tasks', async(req,res)=>{
-      const task= req.body;
-      const result= await tasksCollection.insertOne(task);
+    app.post('/tasks', async (req, res) => {
+      const task = req.body;
+      const result = await tasksCollection.insertOne(task);
       res.send(result);
     });
     app.get('/tasks', async (req, res) => {
       const result = await tasksCollection.find().toArray();
+      res.send(result);
+    });
+    app.get('/tasks/:email/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await tasksCollection.findOne(query);
       res.send(result);
     });
     app.get('/tasks/:email', async (req, res) => {
@@ -64,10 +70,28 @@ async function run() {
       const result = await tasksCollection.find(query).toArray();
       res.send(result);
     });
-    app.delete('/tasks/:id', async(req,res)=>{
-      const id= req.params.id;
-      const query= {_id: new ObjectId(id)};
-      const result= await tasksCollection.deleteOne(query);
+    app.delete('/tasks/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await tasksCollection.deleteOne(query);
+      res.send(result);
+    });
+    app.patch('/tasks/:id', async (req, res) => {
+      const taskDetails = req.body;
+      console.log(taskDetails);
+      const id = req.params.id;
+      console.log(id);
+      const filter = { _id: new ObjectId(id) };
+      const updateTask = {
+        $set: {
+          taskName: taskDetails.taskName,
+          taskDescription: taskDetails.taskDescription,
+          taskDeadline: taskDetails.taskDeadline,
+          taskPriority: taskDetails.taskPriority,
+          userEmail: taskDetails.userEmail,
+        }
+      }
+      const result = await tasksCollection.updateOne(filter, updateTask);
       res.send(result);
     })
     // ------------------------------------
